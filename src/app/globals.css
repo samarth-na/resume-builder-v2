@@ -55,9 +55,22 @@ body {
 }
 
 /* Syntax highlighting colors for the LaTeX editor */
-.latex-keyword { color: #c678dd; }
-.latex-command { color: #61afef; }
-.latex-brace { color: #e5c07b; }
-.latex-comment { color: #5c6370; font-style: italic; }
-.latex-string { color: #98c379; }
-.latex-arg { color: #d19a66; }
+.latex-keyword {
+  color: #c678dd;
+}
+.latex-command {
+  color: #61afef;
+}
+.latex-brace {
+  color: #e5c07b;
+}
+.latex-comment {
+  color: #5c6370;
+  font-style: italic;
+}
+.latex-string {
+  color: #98c379;
+}
+.latex-arg {
+  color: #d19a66;
+}
