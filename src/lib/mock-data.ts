@@ -1,4 +1,5 @@
-import type { Profile, ResumeProject } from "./types";
+import { defaultLatexTemplate } from "./default-latex";
+import type { Format, Profile, ResumeProject } from "./types";
 
 export const initialProfile: Profile = {
   basic: {
@@ -16,7 +17,7 @@ export const initialProfile: Profile = {
     {
       id: "experience",
       name: "Experience",
-      type: "bullets",
+      types: ["bullets"],
       isDefault: true,
       entries: [
         {
@@ -50,7 +51,7 @@ export const initialProfile: Profile = {
     {
       id: "education",
       name: "Education",
-      type: "bullets",
+      types: ["bullets"],
       isDefault: true,
       entries: [
         {
@@ -70,7 +71,7 @@ export const initialProfile: Profile = {
     {
       id: "skills",
       name: "Skills",
-      type: "tags",
+      types: ["tags"],
       isDefault: true,
       entries: [
         {
@@ -92,7 +93,7 @@ export const initialProfile: Profile = {
     {
       id: "achievements",
       name: "Achievements",
-      type: "bullets",
+      types: ["bullets"],
       isDefault: true,
       entries: [
         {
@@ -165,6 +166,25 @@ TypeScript, React, Next.js, Node.js, PostgreSQL, Tailwind CSS, Figma, GraphQL, R
 
 \\end{document}
 `;
+
+export const initialFormats: Format[] = [
+  {
+    id: "format-1",
+    name: "Classic ATS-Friendly",
+    description:
+      "Jake Gutierrez sb2nov template - single-column, ATS-parseable, machine-readable PDF output.",
+    latexCode: defaultLatexTemplate,
+    isDefault: true,
+  },
+  {
+    id: "format-2",
+    name: "Modern Minimal",
+    description:
+      "Lots of white space, sans-serif headings, and a subtle sidebar for contact details.",
+    latexCode: sampleLatex,
+    isDefault: false,
+  },
+];
 
 export const initialProjects: ResumeProject[] = [
   {
