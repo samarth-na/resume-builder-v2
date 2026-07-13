@@ -13,7 +13,7 @@ export interface ProfileEntry {
 export interface ProfileSection {
   id: string;
   name: string;
-  type: SectionType;
+  types: SectionType[];
   entries: ProfileEntry[];
   isDefault?: boolean;
 }
@@ -37,7 +37,7 @@ export interface Profile {
 
 export interface ChatMessage {
   id: string;
-  role: "user" | "assistant";
+  role: "system" | "user" | "assistant";
   content: string;
   timestamp: string;
 }
@@ -56,4 +56,17 @@ export interface ResumeProject {
     company: string;
     tone: string;
   };
+  userId?: string;
+  createdAt?: Date;
+}
+
+export interface Format {
+  id: string;
+  name: string;
+  description: string;
+  latexCode: string;
+  isDefault?: boolean;
+  userId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
