@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, Linkedin, Mail, Phone } from "lucide-react";
+import { Globe, Link, Mail, Phone } from "lucide-react";
 import { initialProfile } from "@/lib/mock-data";
 
 export default function PdfPreview() {
@@ -27,7 +27,7 @@ export default function PdfPreview() {
               {profile.basic.phone}
             </span>
             <span className="flex items-center gap-1">
-              <Linkedin className="h-3 w-3" />
+              <Link className="h-3 w-3" />
               {profile.basic.linkedin}
             </span>
             <span className="flex items-center gap-1">
