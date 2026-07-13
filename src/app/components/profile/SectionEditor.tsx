@@ -1,8 +1,15 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
-import type { ProfileSection } from "@/lib/types";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import type { ProfileSection, SectionType } from "@/lib/types";
 import EntryEditor from "./EntryEditor";
+
+const sectionTypeLabels: Record<SectionType, string> = {
+  paragraph: "Paragraph",
+  bullets: "Bullet points",
+  tags: "Tag list",
+};
 
 export default function SectionEditor({
   section,
@@ -13,15 +20,25 @@ export default function SectionEditor({
   onChange: (section: ProfileSection) => void;
   onDelete?: () => void;
 }) {
-  const addEntry = () => {
-    const newEntry =
-      section.type === "tags"
-        ? { id: crypto.randomUUID(), tags: [""] }
-        : section.type === "paragraph"
-          ? { id: crypto.randomUUID(), paragraph: "" }
-          : { id: crypto.randomUUID(), bullets: [""] };
+  const [editingTypes, setEditingTypes] = useState(false);
 
-    onChange({ ...section, entries: [...section.entries, newEntry] });
+  const addEntry = () => {
+    const base = { id: crypto.randomUUID() };
+    if (section.types.includes("tags"))
+      onChange({
+        ...section,
+        entries: [...section.entries, { ...base, tags: [""] }],
+      });
+    else if (section.types.includes("paragraph"))
+      onChange({
+        ...section,
+        entries: [...section.entries, { ...base, paragraph: "" }],
+      });
+    else
+      onChange({
+        ...section,
+        entries: [...section.entries, { ...base, bullets: [""] }],
+      });
   };
 
   const updateEntry = (
@@ -39,6 +56,13 @@ export default function SectionEditor({
     onChange({ ...section, entries });
   };
 
+  const toggleType = (type: SectionType) => {
+    const next = section.types.includes(type)
+      ? section.types.filter((t) => t !== type)
+      : [...section.types, type];
+    onChange({ ...section, types: next.length ? next : section.types });
+  };
+
   return (
     <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
       <div className="mb-4 flex items-center justify-between">
@@ -46,9 +70,49 @@ export default function SectionEditor({
           <h3 className="text-lg font-semibold text-zinc-100">
             {section.name}
           </h3>
-          <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-500">
-            {section.type}
-          </span>
+          {editingTypes ? (
+            <div className="flex items-center gap-2">
+              {(Object.keys(sectionTypeLabels) as SectionType[]).map((type) => (
+                <label
+                  key={type}
+                  className="flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={section.types.includes(type)}
+                    onChange={() => toggleType(type)}
+                    className="h-3 w-3 rounded border-zinc-600 bg-zinc-800 text-indigo-500"
+                  />
+                  {sectionTypeLabels[type]}
+                </label>
+              ))}
+              <button
+                type="button"
+                onClick={() => setEditingTypes(false)}
+                className="rounded p-0.5 text-zinc-500 hover:text-zinc-300"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              {section.types.map((type) => (
+                <span
+                  key={type}
+                  className="rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-500"
+                >
+                  {sectionTypeLabels[type]}
+                </span>
+              ))}
+              <button
+                type="button"
+                onClick={() => setEditingTypes(true)}
+                className="rounded p-0.5 text-zinc-600 transition-colors hover:text-zinc-300"
+              >
+                <Pencil className="h-3 w-3" />
+              </button>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -75,7 +139,7 @@ export default function SectionEditor({
         {section.entries.map((entry, index) => (
           <EntryEditor
             key={entry.id}
-            type={section.type}
+            types={section.types}
             entry={entry}
             onChange={(e) => updateEntry(index, e)}
             onDelete={() => deleteEntry(index)}

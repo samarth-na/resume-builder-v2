@@ -1,9 +1,8 @@
 "use client";
 
 import { Plus, Save } from "lucide-react";
-import { useState } from "react";
-import { initialProfile } from "@/lib/mock-data";
-import type { ProfileSection, SectionType } from "@/lib/types";
+import { useEffect, useState } from "react";
+import type { Profile, ProfileSection, SectionType } from "@/lib/types";
 import BasicInfoForm from "../components/profile/BasicInfoForm";
 import SectionEditor from "../components/profile/SectionEditor";
 import Sidebar from "../components/Sidebar";
@@ -15,24 +14,62 @@ const sectionTypeLabels: Record<SectionType, string> = {
 };
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState(initialProfile);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [showAddSection, setShowAddSection] = useState(false);
   const [newSectionName, setNewSectionName] = useState("");
-  const [newSectionType, setNewSectionType] = useState<SectionType>("bullets");
-  const [saveStatus, setSaveStatus] = useState("Saved to workspace");
+  const [newSectionTypes, setNewSectionTypes] = useState<SectionType[]>([
+    "bullets",
+  ]);
+  const [saveStatus, setSaveStatus] = useState("Saved");
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((res) => res.json())
+      .then((data: Profile) => setProfile(data))
+      .catch(() => setSaveStatus("Failed to load profile"));
+  }, []);
+
+  const persist = async (next: Profile) => {
+    setSaveStatus("Saving...");
+    const res = await fetch("/api/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next),
+    });
+    if (!res.ok) {
+      setSaveStatus("Save failed");
+      return;
+    }
+    const saved: Profile = await res.json();
+    setProfile(saved);
+    setSaveStatus("Saved");
+  };
+
+  if (!profile) {
+    return (
+      <div className="flex h-screen overflow-hidden">
+        <Sidebar />
+        <main className="flex flex-1 items-center justify-center text-sm text-zinc-500">
+          Loading profile...
+        </main>
+      </div>
+    );
+  }
 
   const updateSection = (index: number, section: ProfileSection) => {
     const sections = [...profile.sections];
     sections[index] = section;
-    setProfile({ ...profile, sections });
-    setSaveStatus("Saving...");
-    setTimeout(() => setSaveStatus("Saved to workspace"), 600);
+    const next = { ...profile, sections };
+    setProfile(next);
+    void persist(next);
   };
 
   const deleteSection = (index: number) => {
     const sections = [...profile.sections];
     sections.splice(index, 1);
-    setProfile({ ...profile, sections });
+    const next = { ...profile, sections };
+    setProfile(next);
+    void persist(next);
   };
 
   const addSection = () => {
@@ -40,14 +77,21 @@ export default function ProfilePage() {
     const section: ProfileSection = {
       id: crypto.randomUUID(),
       name: newSectionName.trim(),
-      type: newSectionType,
+      types: newSectionTypes,
       entries: [],
     };
-    setProfile({ ...profile, sections: [...profile.sections, section] });
+    const next = { ...profile, sections: [...profile.sections, section] };
+    setProfile(next);
     setNewSectionName("");
+    setNewSectionTypes(["bullets"]);
     setShowAddSection(false);
-    setSaveStatus("Saving...");
-    setTimeout(() => setSaveStatus("Saved to workspace"), 600);
+    void persist(next);
+  };
+
+  const toggleType = (type: SectionType) => {
+    setNewSectionTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
+    );
   };
 
   return (
@@ -69,10 +113,7 @@ export default function ProfilePage() {
             </span>
             <button
               type="button"
-              onClick={() => {
-                setSaveStatus("Saving...");
-                setTimeout(() => setSaveStatus("Saved to workspace"), 600);
-              }}
+              onClick={() => void persist(profile)}
               className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-indigo-500"
             >
               Save changes
@@ -88,7 +129,11 @@ export default function ProfilePage() {
               </h2>
               <BasicInfoForm
                 value={profile.basic}
-                onChange={(basic) => setProfile({ ...profile, basic })}
+                onChange={(basic) => {
+                  const next = { ...profile, basic };
+                  setProfile(next);
+                }}
+                onBlur={() => void persist(profile)}
               />
             </section>
 
@@ -100,6 +145,7 @@ export default function ProfilePage() {
                 onChange={(e) =>
                   setProfile({ ...profile, bio: e.target.value })
                 }
+                onBlur={() => void persist(profile)}
                 placeholder="Write a short professional bio..."
                 className="w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
               />
@@ -128,29 +174,30 @@ export default function ProfilePage() {
                 </button>
               ) : (
                 <div className="space-y-3">
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <input
-                      type="text"
-                      value={newSectionName}
-                      onChange={(e) => setNewSectionName(e.target.value)}
-                      placeholder="Section name (e.g. Certificates)"
-                      className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
-                    />
-                    <select
-                      value={newSectionType}
-                      onChange={(e) =>
-                        setNewSectionType(e.target.value as SectionType)
-                      }
-                      className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
-                    >
-                      {(Object.keys(sectionTypeLabels) as SectionType[]).map(
-                        (type) => (
-                          <option key={type} value={type}>
-                            {sectionTypeLabels[type]}
-                          </option>
-                        ),
-                      )}
-                    </select>
+                  <input
+                    type="text"
+                    value={newSectionName}
+                    onChange={(e) => setNewSectionName(e.target.value)}
+                    placeholder="Section name (e.g. Certificates)"
+                    className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
+                  />
+                  <div className="flex flex-wrap gap-3">
+                    {(Object.keys(sectionTypeLabels) as SectionType[]).map(
+                      (type) => (
+                        <label
+                          key={type}
+                          className="flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 transition-colors has-checked:border-indigo-500/50 has-checked:bg-indigo-500/10"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={newSectionTypes.includes(type)}
+                            onChange={() => toggleType(type)}
+                            className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-indigo-500 focus:ring-indigo-500/30"
+                          />
+                          {sectionTypeLabels[type]}
+                        </label>
+                      ),
+                    )}
                   </div>
                   <div className="flex items-center justify-end gap-2">
                     <button
