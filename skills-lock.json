@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "opencode-memory": {
+      "source": "carson2222/skills",
+      "sourceType": "github",
+      "skillPath": "opencode-memory/SKILL.md",
+      "computedHash": "ec0727c67f3f1524e315f6a756531499edf97913d52e6898c903447511edaf43"
+    }
+  }
+}
