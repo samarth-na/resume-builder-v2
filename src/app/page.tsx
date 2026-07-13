@@ -9,13 +9,38 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { initialProjects } from "@/lib/mock-data";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import type { ResumeProject } from "@/lib/types";
 import ResumeCard from "./components/ResumeCard";
 import Sidebar from "./components/Sidebar";
 
 export default function Dashboard() {
+  const router = useRouter();
   const [prompt, setPrompt] = useState("");
+  const [projects, setProjects] = useState<ResumeProject[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/workspaces")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: ResumeProject[]) => setProjects(data))
+      .catch(() => setProjects([]));
+  }, []);
+
+  const createWorkspace = async (targetRole?: string) => {
+    const role = targetRole?.trim();
+    const res = await fetch("/api/workspaces", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: role ? `Resume — ${role}` : "Untitled Resume",
+        targetRole: role || undefined,
+      }),
+    });
+    if (!res.ok) return;
+    const workspace: ResumeProject = await res.json();
+    router.push(`/workspace/${workspace.id}`);
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -43,6 +68,12 @@ export default function Dashboard() {
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    createWorkspace(prompt.trim() || undefined);
+                  }
+                }}
                 placeholder="Ask ResumeCraft to generate a resume for..."
                 className="h-24 w-full resize-none bg-transparent px-3 py-2 text-base text-zinc-100 placeholder-zinc-500 outline-none"
               />
@@ -69,7 +100,9 @@ export default function Dashboard() {
                   </button>
                   <button
                     type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-700 text-zinc-200 transition-colors hover:bg-zinc-600"
+                    onClick={() => createWorkspace(prompt.trim() || undefined)}
+                    disabled={!prompt.trim()}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 transition-colors hover:bg-white disabled:opacity-50"
                   >
                     <ArrowUp className="h-4 w-4" />
                   </button>
@@ -121,20 +154,25 @@ export default function Dashboard() {
                   Templates
                 </button>
               </div>
-              <Link
-                href="#"
-                className="text-xs font-medium text-zinc-400 hover:text-white"
-              >
-                Browse all →
-              </Link>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {initialProjects.map((project) => (
-                <ResumeCard key={project.id} project={project} />
-              ))}
+              {projects === null ? (
+                <p className="col-span-full py-8 text-center text-sm text-zinc-500">
+                  Loading resumes...
+                </p>
+              ) : projects.length === 0 ? (
+                <p className="col-span-full py-8 text-center text-sm text-zinc-500">
+                  No resumes yet. Create one above.
+                </p>
+              ) : (
+                projects.map((project) => (
+                  <ResumeCard key={project.id} project={project} />
+                ))
+              )}
               <button
                 type="button"
+                onClick={() => createWorkspace()}
                 className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zinc-700 bg-zinc-900/30 p-4 text-zinc-500 transition-colors hover:border-zinc-600 hover:text-zinc-300"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
