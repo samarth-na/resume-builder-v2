@@ -25,6 +25,9 @@ function extractLatex(text: string): string | null {
   return match ? match[0] : null;
 }
 
+const inputClass =
+  "w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-ring";
+
 export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
   const [prompt, setPrompt] = useState(project.meta.prompt);
   const [jobDescription, setJobDescription] = useState(
@@ -177,13 +180,13 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
   };
 
   return (
-    <div className="flex h-full flex-col bg-zinc-950">
+    <div className="flex h-full flex-col bg-background">
       <div className="flex-1 overflow-y-auto px-5 py-6">
-        <div className="mx-auto max-w-xl space-y-6">
+        <div className="mx-auto max-w-xl space-y-5">
           {project.chat.length === 0 && (
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 text-sm text-zinc-400">
+            <div className="rounded-lg border border-border bg-card p-4 text-[13px] leading-relaxed text-muted-foreground">
               Ask ResumeCraft to generate your first resume, or describe changes
-              you'd like to make.
+              you&apos;d like to make.
             </div>
           )}
           {project.chat.map((message) => (
@@ -194,40 +197,43 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
               }`}
             >
               <div
-                className={`max-w-[90%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[90%] rounded-lg px-3.5 py-2.5 ${
                   message.role === "user"
-                    ? "bg-indigo-600 text-white"
-                    : "border border-zinc-800 bg-zinc-900/60 text-zinc-200"
+                    ? "bg-secondary text-secondary-foreground"
+                    : "border border-border bg-card text-card-foreground"
                 }`}
               >
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                <p className="whitespace-pre-wrap text-[13px] leading-relaxed">
                   {message.content}
                 </p>
                 {message.role === "assistant" && (
-                  <div className="mt-3 flex items-center gap-1 border-t border-zinc-800/80 pt-2">
+                  <div className="mt-2.5 flex items-center gap-0.5 border-t border-border pt-2">
                     <button
                       type="button"
-                      className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                      className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                     >
-                      <Copy className="h-3.5 w-3.5" />
+                      <Copy className="h-3.5 w-3.5" strokeWidth={1.75} />
                     </button>
                     <button
                       type="button"
-                      className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                      className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                     >
-                      <ThumbsUp className="h-3.5 w-3.5" />
+                      <ThumbsUp className="h-3.5 w-3.5" strokeWidth={1.75} />
                     </button>
                     <button
                       type="button"
-                      className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                      className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                     >
-                      <ThumbsDown className="h-3.5 w-3.5" />
+                      <ThumbsDown className="h-3.5 w-3.5" strokeWidth={1.75} />
                     </button>
                     <button
                       type="button"
-                      className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                      className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                     >
-                      <MoreHorizontal className="h-3.5 w-3.5" />
+                      <MoreHorizontal
+                        className="h-3.5 w-3.5"
+                        strokeWidth={1.75}
+                      />
                     </button>
                   </div>
                 )}
@@ -238,11 +244,11 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
           {/* Thinking indicator */}
           {sending && thinking && !streamingContent && (
             <div className="flex justify-start">
-              <div className="max-w-[90%] rounded-2xl border border-amber-800/40 bg-amber-950/20 px-4 py-3">
-                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-amber-500">
+              <div className="max-w-[90%] rounded-lg border border-chart-3/30 bg-chart-3/10 px-3.5 py-2.5">
+                <p className="mb-1 text-[10px] font-medium uppercase tracking-widest text-chart-3">
                   Thinking...
                 </p>
-                <p className="whitespace-pre-wrap text-xs leading-relaxed text-amber-300/70">
+                <p className="whitespace-pre-wrap text-xs leading-relaxed text-chart-3/70">
                   {thinking}
                 </p>
               </div>
@@ -252,11 +258,11 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
           {/* Streaming content indicator */}
           {sending && streamingContent && (
             <div className="flex justify-start">
-              <div className="max-w-[90%] rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
-                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-500">
+              <div className="max-w-[90%] rounded-lg border border-border bg-card px-3.5 py-2.5">
+                <p className="mb-1 text-[10px] font-medium uppercase tracking-widest text-chart-2">
                   Generating resume...
                 </p>
-                <p className="whitespace-pre-wrap text-xs leading-relaxed text-zinc-400">
+                <p className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
                   Writing LaTeX code...
                 </p>
               </div>
@@ -266,7 +272,7 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
           {/* Loading state before any tokens arrive */}
           {sending && !thinking && !streamingContent && (
             <div className="flex justify-start">
-              <div className="flex items-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm text-zinc-400">
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2.5 text-[13px] text-muted-foreground">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 Working on your resume...
               </div>
@@ -275,14 +281,14 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
         </div>
       </div>
 
-      <div className="border-t border-zinc-800 bg-zinc-950 p-4">
+      <div className="border-t border-border bg-background p-4">
         <div className="mx-auto max-w-xl space-y-3">
           <button
             type="button"
             onClick={() => setShowOptions(!showOptions)}
-            className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-300"
+            className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            <Sparkles className="h-3.5 w-3.5" />
+            <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} />
             {showOptions ? "Hide options" : "Add job context"}
             <ChevronDown
               className={`h-3.5 w-3.5 transition-transform ${
@@ -292,11 +298,11 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
           </button>
 
           {showOptions && (
-            <div className="grid gap-3 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
+            <div className="grid gap-3 rounded-lg border border-border bg-card p-3">
               <div>
                 <label
                   htmlFor="role-title"
-                  className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500"
+                  className="mb-1 block text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
                 >
                   Role title
                 </label>
@@ -306,13 +312,13 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder="Generate a resume for..."
-                  className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
+                  className={inputClass}
                 />
               </div>
               <div>
                 <label
                   htmlFor="target-company"
-                  className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500"
+                  className="mb-1 block text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
                 >
                   Target company
                 </label>
@@ -322,13 +328,13 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   placeholder="e.g. Stripe"
-                  className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
+                  className={inputClass}
                 />
               </div>
               <div>
                 <label
                   htmlFor="job-description"
-                  className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500"
+                  className="mb-1 block text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
                 >
                   Job description
                 </label>
@@ -338,13 +344,13 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                   placeholder="Paste the job description here..."
-                  className="w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
+                  className={`${inputClass} resize-none`}
                 />
               </div>
               <div>
                 <label
                   htmlFor="tone-style"
-                  className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500"
+                  className="mb-1 block text-[10px] font-medium uppercase tracking-widest text-muted-foreground"
                 >
                   Tone / style
                 </label>
@@ -352,7 +358,7 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
                   id="tone-style"
                   value={tone}
                   onChange={(e) => setTone(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
+                  className={inputClass}
                 >
                   <option>Professional</option>
                   <option>Casual</option>
@@ -363,7 +369,7 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
             </div>
           )}
 
-          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/90 p-3 shadow-lg">
+          <div className="rounded-xl border border-border bg-card p-3 shadow-md">
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
@@ -374,39 +380,39 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
                 }
               }}
               placeholder="Ask ResumeCraft to edit your resume..."
-              className="h-16 w-full resize-none bg-transparent px-2 py-1 text-sm text-zinc-100 placeholder-zinc-500 outline-none"
+              className="h-16 w-full resize-none bg-transparent px-2 py-1 text-[13px] text-foreground placeholder:text-muted-foreground/70 outline-none"
             />
             <div className="flex items-center justify-between pt-2">
               <button
                 type="button"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
               </button>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-white"
+                  className="flex h-8 items-center gap-1.5 rounded-md px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                   Build
-                  <ChevronDown className="h-3.5 w-3.5" />
+                  <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.75} />
                 </button>
                 <button
                   type="button"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+                  className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
-                  <Mic className="h-4 w-4" />
+                  <Mic className="h-4 w-4" strokeWidth={1.75} />
                 </button>
                 <button
                   type="button"
                   onClick={() => void sendMessage()}
                   disabled={!prompt.trim() || sending}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 transition-colors hover:bg-white disabled:opacity-50"
+                  className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
                 >
                   {sending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <ArrowUp className="h-4 w-4" />
+                    <ArrowUp className="h-4 w-4" strokeWidth={2} />
                   )}
                 </button>
               </div>
@@ -424,7 +430,7 @@ export default function ChatPanel({ project, onUpdate }: ChatPanelProps) {
                 type="button"
                 key={suggestion}
                 onClick={() => setPrompt(suggestion)}
-                className="rounded-full border border-zinc-800 bg-zinc-900/60 px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-200"
+                className="rounded-full border border-border bg-card/60 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-input hover:bg-accent hover:text-accent-foreground"
               >
                 {suggestion}
               </button>

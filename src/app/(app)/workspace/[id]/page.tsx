@@ -33,14 +33,14 @@ export default function WorkspacePage() {
 
   if (!project) {
     return (
-      <div className="flex flex-1 items-center justify-center text-sm text-zinc-500">
+      <div className="flex flex-1 items-center justify-center text-[13px] text-muted-foreground">
         Loading workspace...
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden bg-zinc-950">
+    <div className="flex flex-1 flex-col overflow-hidden bg-background">
       <TopBar
         name={project.name}
         targetRole={project.targetRole}
@@ -50,7 +50,7 @@ export default function WorkspacePage() {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex w-1/2 min-w-[420px] flex-col border-r border-zinc-800">
+        <div className="flex w-1/2 min-w-[420px] flex-col border-r border-border">
           <ChatPanel project={project} onUpdate={setProject} />
         </div>
 

@@ -48,50 +48,52 @@ export default function FormatDetailPage() {
 
   if (!format) {
     return (
-      <div className="flex flex-1 items-center justify-center text-sm text-zinc-500">
+      <div className="flex flex-1 items-center justify-center text-[13px] text-muted-foreground">
         Loading format...
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden bg-zinc-950">
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-800 px-4">
-        <div className="flex items-center gap-3">
+    <div className="flex flex-1 flex-col overflow-hidden bg-background">
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
+        <div className="flex min-w-0 items-center gap-2">
           <Link
             href="/formats"
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-zinc-200"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
             Formats
           </Link>
-          <span className="text-xs text-zinc-600">|</span>
-          <h1 className="text-sm font-semibold text-white">{format.name}</h1>
+          <span className="text-xs text-muted-foreground/40">/</span>
+          <h1 className="truncate text-[13px] font-medium text-foreground">
+            {format.name}
+          </h1>
           {format.isDefault && (
-            <span className="rounded bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-indigo-300">
+            <span className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
               Default
             </span>
           )}
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 text-xs text-zinc-500">
-            <Save className="h-3.5 w-3.5" />
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Save className="h-3.5 w-3.5" strokeWidth={1.75} />
             {saveStatus}
           </span>
           <button
             type="button"
             onClick={downloadTex}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-900 transition-colors hover:bg-white"
+            className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            <Download className="h-3.5 w-3.5" />
+            <Download className="h-3.5 w-3.5" strokeWidth={2} />
             Download .tex
           </button>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex w-1/2 min-w-[420px] flex-col border-r border-zinc-800">
+        <div className="flex w-1/2 min-w-[420px] flex-col border-r border-border">
           <LatexEditor
             value={format.latexCode}
             onChange={(latexCode) => {

@@ -8,8 +8,8 @@ export default function PdfPreview() {
   const profile = initialProfile;
 
   return (
-    <div className="flex h-full items-start justify-center overflow-y-auto bg-zinc-900/40 p-8">
-      <div className="w-full max-w-[210mm] min-h-[297mm] bg-white p-[16mm] text-zinc-900 shadow-2xl">
+    <div className="flex h-full items-start justify-center overflow-y-auto bg-background p-8">
+      <div className="w-full max-w-[210mm] min-h-[297mm] bg-white p-[16mm] text-zinc-900 shadow-xl">
         <header className="border-b-2 border-zinc-900 pb-4">
           <h1 className="text-3xl font-bold tracking-tight">
             {profile.basic.fullName}

@@ -29,20 +29,20 @@ export default function ResumesPage() {
   };
 
   return (
-    <main className="flex flex-1 flex-col overflow-hidden bg-zinc-950">
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-800 px-6">
-        <div>
-          <h1 className="text-base font-semibold text-white">Resumes</h1>
-          <p className="text-xs text-zinc-500">
+    <main className="flex flex-1 flex-col overflow-hidden bg-background">
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-6">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-sm font-medium text-foreground">Resumes</h1>
+          <p className="text-xs text-muted-foreground">
             Every resume workspace you have created.
           </p>
         </div>
         <button
           type="button"
           onClick={createWorkspace}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-indigo-500"
+          className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          <Plus className="h-3.5 w-3.5" />
+          <Plus className="h-3.5 w-3.5" strokeWidth={2} />
           New resume
         </button>
       </header>
@@ -51,11 +51,11 @@ export default function ResumesPage() {
         <div className="mx-auto max-w-5xl">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {projects === null ? (
-              <p className="col-span-full py-8 text-center text-sm text-zinc-500">
+              <p className="col-span-full py-8 text-center text-[13px] text-muted-foreground">
                 Loading resumes...
               </p>
             ) : projects.length === 0 ? (
-              <p className="col-span-full py-8 text-center text-sm text-zinc-500">
+              <p className="col-span-full py-8 text-center text-[13px] text-muted-foreground">
                 No resumes yet. Create one to get started.
               </p>
             ) : (
@@ -66,12 +66,12 @@ export default function ResumesPage() {
             <button
               type="button"
               onClick={createWorkspace}
-              className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zinc-700 bg-zinc-900/30 p-4 text-zinc-500 transition-colors hover:border-zinc-600 hover:text-zinc-300"
+              className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card/30 p-4 text-muted-foreground transition-colors hover:border-input hover:bg-card/60 hover:text-foreground"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
-                <Plus className="h-5 w-5" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary">
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
               </div>
-              <span className="text-sm font-medium">New resume</span>
+              <span className="text-[13px] font-medium">New resume</span>
             </button>
           </div>
         </div>

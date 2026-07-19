@@ -3,22 +3,15 @@
 import { Plus, Trash2 } from "lucide-react";
 import type { ProfileEntry, SectionType } from "@/lib/types";
 
+const inputClass =
+  "w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-ring";
+
 function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
-    />
-  );
+  return <input {...props} className={inputClass} />;
 }
 
 function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
-    <textarea
-      {...props}
-      className="w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
-    />
-  );
+  return <textarea {...props} className={`${inputClass} resize-none`} />;
 }
 
 export default function EntryEditor({
@@ -75,17 +68,17 @@ export default function EntryEditor({
     types.includes("bullets") || types.includes("paragraph");
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+    <div className="rounded-md border border-border bg-background/60 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        <h4 className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
           Entry
         </h4>
         <button
           type="button"
           onClick={onDelete}
-          className="rounded p-1.5 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
         >
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>
       </div>
 
@@ -136,7 +129,7 @@ export default function EntryEditor({
                 key={`${entry.id}-bullet-${i}`}
                 className="flex items-center gap-2"
               >
-                <span className="text-zinc-600">•</span>
+                <span className="text-muted-foreground">•</span>
                 <Input
                   placeholder="Bullet point"
                   value={bullet}
@@ -145,18 +138,18 @@ export default function EntryEditor({
                 <button
                   type="button"
                   onClick={() => removeBullet(i)}
-                  className="rounded p-1 text-zinc-600 hover:bg-zinc-800 hover:text-zinc-300"
+                  className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-3 w-3" strokeWidth={1.75} />
                 </button>
               </div>
             ))}
             <button
               type="button"
               onClick={addBullet}
-              className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+              className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
               Add bullet
             </button>
           </div>
@@ -180,9 +173,9 @@ export default function EntryEditor({
                 <button
                   type="button"
                   onClick={() => removeTag(i)}
-                  className="rounded p-1 text-zinc-600 hover:bg-zinc-800 hover:text-zinc-300"
+                  className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-3 w-3" strokeWidth={1.75} />
                 </button>
               </div>
             ))}
@@ -190,9 +183,9 @@ export default function EntryEditor({
           <button
             type="button"
             onClick={addTag}
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
             Add tag
           </button>
         </div>

@@ -11,8 +11,8 @@ export default function FormatPdfPreview({
   const profile = initialProfile;
 
   return (
-    <div className="flex h-full items-start justify-center overflow-y-auto bg-zinc-900/40 p-8">
-      <div className="w-full max-w-[210mm] min-h-[297mm] bg-white p-[16mm] text-zinc-900 shadow-2xl">
+    <div className="flex h-full items-start justify-center overflow-y-auto bg-background p-8">
+      <div className="w-full max-w-[210mm] min-h-[297mm] bg-white p-[16mm] text-zinc-900 shadow-xl">
         <div className="mb-4 border-b border-zinc-200 pb-3">
           <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
             Previewing format: {formatName}

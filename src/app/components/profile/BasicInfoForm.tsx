@@ -32,7 +32,7 @@ export default function BasicInfoForm({
         <div key={field.key} className="space-y-1.5">
           <label
             htmlFor={field.key}
-            className="text-xs font-medium text-zinc-400"
+            className="text-xs font-medium text-muted-foreground"
           >
             {field.label}
           </label>
@@ -45,7 +45,7 @@ export default function BasicInfoForm({
             }
             onBlur={onBlur}
             placeholder={field.placeholder}
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-colors focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30"
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-ring"
           />
         </div>
       ))}
