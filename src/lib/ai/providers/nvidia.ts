@@ -30,7 +30,7 @@ export class NvidiaProvider extends BaseAiProvider {
     this.defaults = {
       model,
       temperature: 0.7,
-      maxTokens: 4096,
+      maxTokens: 2500,
       topP: 1,
       stream: false,
     };

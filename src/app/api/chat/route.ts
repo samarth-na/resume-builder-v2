@@ -40,24 +40,19 @@ export async function POST(request: Request) {
       return errorResponse("messages must be a non-empty array.", 400);
     }
 
-    for (const message of messages) {
-      if (
-        typeof message?.role !== "string" ||
-        typeof message?.content !== "string" ||
-        !message.content.trim()
-      ) {
-        return errorResponse(
-          "Each message must have a non-empty role and content.",
-          400,
-        );
-      }
-      if (!["system", "user", "assistant"].includes(message.role)) {
-        return errorResponse(
-          "message.role must be one of: system, user, assistant.",
-          400,
-        );
-      }
+    const cleanMessages = messages.filter(
+      (m) =>
+        typeof m?.role === "string" &&
+        typeof m?.content === "string" &&
+        m.content.trim().length > 0 &&
+        ["system", "user", "assistant"].includes(m.role),
+    );
+
+    if (cleanMessages.length === 0) {
+      return errorResponse("messages must be a non-empty array.", 400);
     }
+    messages.length = 0;
+    messages.push(...cleanMessages);
 
     // Resolve format template (by ID or inline LaTeX, fallback to default)
     let formatLatex =

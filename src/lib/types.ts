@@ -40,6 +40,7 @@ export interface ChatMessage {
   role: "system" | "user" | "assistant";
   content: string;
   timestamp: string;
+  thinking?: string;
 }
 
 export interface ResumeProject {

@@ -9,14 +9,63 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+const STORAGE_PREFIX = "resume-pdf:";
+
 export default function PdfPreview({ latex }: { latex: string }) {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [compiling, setCompiling] = useState(false);
   const [fixing, setFixing] = useState(false);
   const [originalError, setOriginalError] = useState<string | null>(null);
+  const workspaceId = useRef<string | null>(null);
 
   const requestRef = useRef<AbortController | null>(null);
+
+  const persistPdf = useCallback(async (blob: Blob) => {
+    const id = workspaceId.current;
+    if (!id) return;
+    try {
+      const buffer = await blob.arrayBuffer();
+      const chunkSize = 1024 * 512;
+      const total = Math.ceil(buffer.byteLength / chunkSize);
+      const meta = JSON.stringify({ total });
+      window.localStorage.setItem(`${STORAGE_PREFIX}${id}:meta`, meta);
+      for (let i = 0; i < total; i++) {
+        const slice = buffer.slice(i * chunkSize, (i + 1) * chunkSize);
+        const b64 = btoa(String.fromCharCode(...new Uint8Array(slice)));
+        window.localStorage.setItem(`${STORAGE_PREFIX}${id}:${i}`, b64);
+      }
+    } catch {
+      // Storage may be full or unavailable — ignore, preview still works in-memory.
+    }
+  }, []);
+
+  const restorePdf = useCallback((id: string): string | null => {
+    try {
+      const metaRaw = window.localStorage.getItem(
+        `${STORAGE_PREFIX}${id}:meta`,
+      );
+      if (!metaRaw) return null;
+      const { total } = JSON.parse(metaRaw) as { total: number };
+      let binary = "";
+      for (let i = 0; i < total; i++) {
+        const chunk = window.localStorage.getItem(
+          `${STORAGE_PREFIX}${id}:${i}`,
+        );
+        if (!chunk) return null;
+        binary += atob(chunk);
+      }
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return URL.createObjectURL(
+        new Blob([bytes], { type: "application/pdf" }),
+      );
+    } catch {
+      return null;
+    }
+  }, []);
 
   const compile = useCallback(
     async (sourceLatex?: string) => {
@@ -66,11 +115,13 @@ export default function PdfPreview({ latex }: { latex: string }) {
             data?.error || `Compilation failed (${response.status}).`,
           );
         }
-        const nextUrl = URL.createObjectURL(await response.blob());
+        const blob = await response.blob();
+        const nextUrl = URL.createObjectURL(blob);
         setPdfUrl((current) => {
           if (current) URL.revokeObjectURL(current);
           return nextUrl;
         });
+        void persistPdf(blob);
       } catch (cause) {
         if (cause instanceof Error && cause.name === "AbortError") return;
         setError(
@@ -83,8 +134,16 @@ export default function PdfPreview({ latex }: { latex: string }) {
         }
       }
     },
-    [latex],
+    [latex, persistPdf],
   );
+
+  useEffect(() => {
+    const id = (window.location.pathname.match(/\/workspace\/(.+)$/)?.[1] ??
+      "") as string;
+    workspaceId.current = id;
+    const restored = restorePdf(id);
+    if (restored) setPdfUrl(restored);
+  }, [restorePdf]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void compile(), 700);
