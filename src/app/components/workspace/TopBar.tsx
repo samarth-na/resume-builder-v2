@@ -24,11 +24,11 @@ export default function TopBar({
   onChangeView: (view: "preview" | "code") => void;
 }) {
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background px-4">
+    <header className="flex h-10 shrink-0 items-center justify-between border-b border-border bg-background px-3">
       <div className="flex min-w-0 items-center gap-2">
         <button
           type="button"
-          className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] font-medium text-foreground transition-colors hover:bg-accent"
+          className="flex items-center gap-1.5 rounded px-2 py-1 text-xs font-light text-foreground hover:bg-accent"
         >
           <span className="truncate">{name}</span>
           <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />

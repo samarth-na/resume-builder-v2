@@ -56,7 +56,7 @@ export default function WorkspacePage() {
 
         <div className="flex flex-1 flex-col">
           {view === "preview" ? (
-            <PdfPreview />
+            <PdfPreview latex={project.latexCode} />
           ) : (
             <LatexEditor
               value={project.latexCode}

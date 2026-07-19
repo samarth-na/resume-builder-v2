@@ -14,11 +14,25 @@ export async function GET() {
 export async function POST(request: Request) {
   const user = await getSessionUser();
   if (!user) return errorResponse("Unauthorized", 401);
-  let data: { name?: string; targetRole?: string } = {};
+  let data: {
+    name?: string;
+    targetRole?: string;
+    metaPrompt?: string;
+    metaJobDescription?: string;
+    metaCompany?: string;
+    metaTone?: string;
+  } = {};
   try {
     const body = await request.json();
     if (typeof body?.name === "string") data.name = body.name;
     if (typeof body?.targetRole === "string") data.targetRole = body.targetRole;
+    if (typeof body?.meta?.prompt === "string")
+      data.metaPrompt = body.meta.prompt;
+    if (typeof body?.meta?.jobDescription === "string")
+      data.metaJobDescription = body.meta.jobDescription;
+    if (typeof body?.meta?.company === "string")
+      data.metaCompany = body.meta.company;
+    if (typeof body?.meta?.tone === "string") data.metaTone = body.meta.tone;
   } catch {
     data = {};
   }

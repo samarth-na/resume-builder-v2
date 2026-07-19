@@ -115,9 +115,9 @@ export default function ProfilePage() {
       </header>
 
       <div className="flex-1 overflow-y-auto px-6 py-8">
-        <div className="mx-auto max-w-3xl space-y-6">
-          <section className="rounded-lg border border-border bg-card p-5">
-            <h2 className="mb-4 text-sm font-medium text-card-foreground">
+        <div className="mx-auto max-w-3xl">
+          <section className="pb-8">
+            <h2 className="mb-4 text-sm font-medium text-foreground">
               Basic information
             </h2>
             <BasicInfoForm
@@ -130,10 +130,13 @@ export default function ProfilePage() {
             />
           </section>
 
-          <section className="rounded-lg border border-border bg-card p-5">
-            <h2 className="mb-4 text-sm font-medium text-card-foreground">
-              Bio
+          <section className="border-t border-border py-8">
+            <h2 className="mb-1 text-sm font-medium text-foreground">
+              Professional summary
             </h2>
+            <p className="mb-4 text-xs text-muted-foreground">
+              A reusable overview the AI can adapt for each role.
+            </p>
             <textarea
               rows={4}
               value={profile.bio}
@@ -155,12 +158,12 @@ export default function ProfilePage() {
             />
           ))}
 
-          <div className="rounded-lg border border-dashed border-border bg-card/30 p-5">
+          <div className="border-t border-border py-8">
             {!showAddSection ? (
               <button
                 type="button"
                 onClick={() => setShowAddSection(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-card py-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:border-input hover:text-foreground"
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 <Plus className="h-4 w-4" strokeWidth={1.75} />
                 Add custom section

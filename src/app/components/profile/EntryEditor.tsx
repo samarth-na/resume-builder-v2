@@ -68,10 +68,10 @@ export default function EntryEditor({
     types.includes("bullets") || types.includes("paragraph");
 
   return (
-    <div className="rounded-md border border-border bg-background/60 p-4">
+    <div className="py-5 first:pt-1 last:pb-0">
       <div className="mb-3 flex items-center justify-between">
-        <h4 className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-          Entry
+        <h4 className="truncate text-xs font-medium text-muted-foreground">
+          {entry.title || entry.subtitle || "New entry"}
         </h4>
         <button
           type="button"

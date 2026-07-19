@@ -1,28 +1,37 @@
 "use client";
 
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy, Download, FileCode2 } from "lucide-react";
 import { useRef, useState } from "react";
 
-function highlightLatex(code: string): string {
-  return code
+const TOKEN_PATTERN = /(%[^\n]*|\\(?:[a-zA-Z@]+\*?|.)|[{}[\]]|\$\$?|&|~|\^)/g;
+
+function escapeHtml(value: string) {
+  return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/(\\[a-zA-Z]+)(\*?)/g, '<span class="latex-command">$1$2</span>')
-    .replace(/(%.*$)/gm, '<span class="latex-comment">$1</span>')
-    .replace(/(\{|\})/g, '<span class="latex-brace">$1</span>')
-    .replace(/(\[|\])/g, '<span class="latex-brace">$1</span>')
-    .replace(/("(?:\\.|[^"\\])*")/g, '<span class="latex-string">$1</span>')
-    .replace(
-      /\\begin\{([^}]+)\}/g,
-      '\\begin{<span class="latex-arg">$1</span>}',
-    )
-    .replace(/\\end\{([^}]+)\}/g, '\\end{<span class="latex-arg">$1</span>}')
-    .replace(/\\href\{([^}]+)\}/g, '\\href{<span class="latex-arg">$1</span>}')
-    .replace(
-      /\\documentclass(\[.*?\])?\{([^}]+)\}/g,
-      '\\documentclass$1{<span class="latex-arg">$2</span>}',
-    );
+    .replace(/>/g, "&gt;");
+}
+
+function highlightLatex(code: string): string {
+  let cursor = 0;
+  let html = "";
+  for (const match of code.matchAll(TOKEN_PATTERN)) {
+    const index = match.index ?? 0;
+    html += escapeHtml(code.slice(cursor, index));
+    const token = match[0];
+    const className = token.startsWith("%")
+      ? "latex-comment"
+      : token.startsWith("\\")
+        ? "latex-command"
+        : token === "{" || token === "}" || token === "[" || token === "]"
+          ? "latex-brace"
+          : token.startsWith("$")
+            ? "latex-math"
+            : "latex-operator";
+    html += `<span class="${className}">${escapeHtml(token)}</span>`;
+    cursor = index + token.length;
+  }
+  return `${html}${escapeHtml(code.slice(cursor))}\n`;
 }
 
 export default function LatexEditor({
@@ -46,53 +55,65 @@ export default function LatexEditor({
   const handleCopy = async () => {
     await navigator.clipboard.writeText(value);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    window.setTimeout(() => setCopied(false), 1500);
+  };
+
+  const download = () => {
+    const url = URL.createObjectURL(
+      new Blob([value], { type: "application/x-tex" }),
+    );
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "resume.tex";
+    anchor.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="flex h-full flex-col bg-background">
-      <div className="flex h-9 shrink-0 items-center justify-between border-b border-border px-4">
-        <span className="font-mono text-xs text-muted-foreground">
+    <div className="flex h-full flex-col bg-zinc-900">
+      <div className="flex h-9 shrink-0 items-center justify-between border-b border-zinc-700 bg-zinc-900 px-3">
+        <span className="flex items-center gap-2 font-mono text-[11px] font-light text-zinc-400">
+          <FileCode2 className="h-3 w-3 text-zinc-400" />
           resume.tex
         </span>
         <div className="flex items-center gap-0.5">
           <button
             type="button"
             onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="flex items-center gap-1.5 rounded border border-transparent px-2 py-1 text-[11px] text-zinc-400 hover:border-zinc-700 hover:bg-zinc-800 hover:text-zinc-100"
           >
             {copied ? (
-              <Check className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <Check className="h-3 w-3" />
             ) : (
-              <Copy className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <Copy className="h-3 w-3" />
             )}
             {copied ? "Copied" : "Copy"}
           </button>
           <button
             type="button"
-            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            onClick={download}
+            className="flex items-center gap-1.5 rounded border border-transparent px-2 py-1 text-[11px] text-zinc-400 hover:border-zinc-700 hover:bg-zinc-800 hover:text-zinc-100"
           >
-            <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
-            Download
+            <Download className="h-3 w-3" /> Download
           </button>
         </div>
       </div>
-
-      <div className="relative flex-1 overflow-hidden font-mono text-[13px]">
+      <div className="relative flex-1 overflow-hidden font-mono">
         <pre
           ref={preRef}
-          className="pointer-events-none absolute inset-0 m-0 overflow-auto whitespace-pre p-4 text-[13px] leading-6 text-foreground/80"
+          className="pointer-events-none absolute inset-0 m-0 overflow-auto whitespace-pre p-4 text-[12px] font-light leading-5 text-zinc-300"
           aria-hidden="true"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: local LaTeX syntax highlighter
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: every user-controlled token is HTML-escaped by highlightLatex
           dangerouslySetInnerHTML={{ __html: highlightLatex(value) }}
         />
         <textarea
           ref={textareaRef}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(event) => onChange(event.target.value)}
           onScroll={syncScroll}
           spellCheck={false}
-          className="absolute inset-0 z-10 h-full w-full resize-none bg-transparent p-4 font-mono text-[13px] leading-6 text-transparent caret-foreground outline-none"
+          aria-label="LaTeX source editor"
+          className="absolute inset-0 z-10 h-full w-full resize-none bg-transparent p-4 font-mono text-[12px] font-light leading-5 text-transparent caret-zinc-100 outline-none selection:bg-zinc-500/30"
         />
       </div>
     </div>

@@ -2,6 +2,8 @@
 
 import {
   ChevronDown,
+  ChevronsLeft,
+  ChevronsRight,
   FileCode2,
   FileText,
   LayoutDashboard,
@@ -27,33 +29,27 @@ function NavItem({
   href,
   icon: Icon,
   label,
-  shortcut,
   active,
+  collapsed,
 }: {
   href: string;
   icon: React.ElementType;
   label: string;
-  shortcut?: string;
   active?: boolean;
+  collapsed: boolean;
 }) {
   return (
     <Link
       href={href}
-      className={`group flex h-7 items-center justify-between gap-2 rounded-md px-2 text-[13px] transition-colors ${
-        active
-          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-          : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-      }`}
+      title={collapsed ? label : undefined}
+      className={`group flex h-8 items-center rounded-md text-[13px] font-light transition-colors ${collapsed ? "justify-center px-1" : "gap-2 px-2"} ${active ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-muted-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"}`}
     >
-      <span className="flex items-center gap-2">
-        <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
-        {label}
+      <span
+        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded ${active ? "bg-zinc-500/25 text-zinc-100" : "text-zinc-500 group-hover:text-zinc-300"}`}
+      >
+        <Icon className="h-3.5 w-3.5" strokeWidth={active ? 2.4 : 2} />
       </span>
-      {shortcut && (
-        <kbd className="hidden rounded border border-sidebar-border bg-sidebar px-1 py-px text-[10px] font-medium text-muted-foreground lg:block">
-          {shortcut}
-        </kbd>
-      )}
+      {!collapsed && <span>{label}</span>}
     </Link>
   );
 }
@@ -63,8 +59,10 @@ export default function Sidebar() {
   const router = useRouter();
   const { data: session } = authClient.useSession();
   const [recents, setRecents] = useState<ResumeProject[]>([]);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
+    setCollapsed(window.localStorage.getItem("sidebar-collapsed") === "true");
     let active = true;
     fetch("/api/workspaces")
       .then((res) => (res.ok ? res.json() : []))
@@ -77,107 +75,150 @@ export default function Sidebar() {
     };
   }, []);
 
+  const toggle = () => {
+    setCollapsed((current) => {
+      window.localStorage.setItem("sidebar-collapsed", String(!current));
+      return !current;
+    });
+  };
   const signOut = async () => {
     await authClient.signOut();
     router.push("/sign-in");
     router.refresh();
   };
-
   const userName = session?.user?.name ?? "Guest";
   const initials = userName.slice(0, 1).toUpperCase();
-
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    if (pathname.startsWith(href)) return true;
-    // Resume workspaces belong to the Resumes section.
-    return href === "/resumes" && pathname.startsWith("/workspace");
-  };
+  const isActive = (href: string) =>
+    href === "/"
+      ? pathname === "/"
+      : pathname.startsWith(href) ||
+        (href === "/resumes" && pathname.startsWith("/workspace"));
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
-      <div className="flex h-12 items-center gap-1 px-3">
+    <aside
+      className={`flex shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ${collapsed ? "w-14" : "w-60"}`}
+    >
+      <div
+        className={`flex h-12 items-center ${collapsed ? "justify-center px-2" : "gap-1 px-3"}`}
+      >
+        {!collapsed && (
+          <button
+            type="button"
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1.5 hover:bg-sidebar-accent/60"
+          >
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-zinc-600 text-[10px] font-normal text-zinc-100">
+              R
+            </div>
+            <span className="truncate text-[13px] font-light text-sidebar-foreground">
+              {userName}&apos;s workspace
+            </span>
+            <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+          </button>
+        )}
+        {!collapsed && (
+          <button
+            type="button"
+            title="Search"
+            className="rounded-md border border-transparent p-1.5 text-muted-foreground hover:border-sidebar-border hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          >
+            <Search className="h-3.5 w-3.5" strokeWidth={2} />
+          </button>
+        )}
         <button
           type="button"
-          className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1.5 py-1.5 transition-colors hover:bg-sidebar-accent/60"
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          onClick={toggle}
+          className="rounded-md border border-sidebar-border bg-zinc-800/60 p-1.5 text-zinc-400 shadow-sm hover:bg-zinc-700/70 hover:text-zinc-100"
         >
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-foreground text-[11px] font-semibold text-background">
-            R
-          </div>
-          <span className="truncate text-[13px] font-medium text-sidebar-foreground">
-            {userName}&apos;s workspace
-          </span>
-          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        </button>
-        <button
-          type="button"
-          title="Search"
-          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-        >
-          <Search className="h-4 w-4" strokeWidth={1.75} />
-        </button>
-        <button
-          type="button"
-          title="New resume"
-          onClick={() => router.push("/")}
-          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-        >
-          <SquarePen className="h-4 w-4" strokeWidth={1.75} />
+          {collapsed ? (
+            <ChevronsRight className="h-3.5 w-3.5" strokeWidth={2.25} />
+          ) : (
+            <ChevronsLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
+          )}
         </button>
       </div>
 
-      <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4">
-        <div className="space-y-px">
+      <nav
+        className={`flex-1 space-y-5 overflow-y-auto pb-4 ${collapsed ? "px-2" : "px-3"}`}
+      >
+        <div className="space-y-0.5">
           {topNav.map((item) => (
-            <NavItem key={item.label} {...item} active={isActive(item.href)} />
+            <NavItem
+              key={item.label}
+              {...item}
+              collapsed={collapsed}
+              active={isActive(item.href)}
+            />
           ))}
         </div>
-
-        <div>
-          <h3 className="mb-1 px-2 text-xs font-medium text-muted-foreground">
-            Recents
-          </h3>
-          <div className="space-y-px">
-            {recents.length === 0 && (
-              <p className="px-2 py-1 text-[13px] text-muted-foreground/60">
-                No resumes yet.
-              </p>
-            )}
-            {recents.map((project) => (
-              <Link
-                key={project.id}
-                href={`/workspace/${project.id}`}
-                className="flex h-7 items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-              >
-                <FileText
-                  className="h-4 w-4 shrink-0 text-muted-foreground/70"
-                  strokeWidth={1.75}
-                />
-                <span className="truncate">{project.name}</span>
-              </Link>
-            ))}
+        {!collapsed && (
+          <div>
+            <h3 className="mb-1 px-2 text-[11px] font-light text-zinc-500">
+              Recents
+            </h3>
+            <div className="space-y-0.5">
+              {recents.length === 0 && (
+                <p className="px-2 py-1 text-xs font-light text-muted-foreground/60">
+                  No resumes yet.
+                </p>
+              )}
+              {recents.map((project) => (
+                <Link
+                  key={project.id}
+                  href={`/workspace/${project.id}`}
+                  className="group flex h-8 items-center gap-2 rounded-md px-2 text-[13px] font-light text-muted-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
+                >
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-zinc-800 text-zinc-500 group-hover:text-zinc-300">
+                    <FileText className="h-3 w-3" strokeWidth={2.2} />
+                  </span>
+                  <span className="truncate">{project.name}</span>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </nav>
 
-      <div className="border-t border-sidebar-border p-2">
-        <div className="flex items-center justify-between rounded-md px-1.5 py-1.5">
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-brand-foreground">
+      <div
+        className={`border-t border-sidebar-border p-2 ${collapsed ? "flex flex-col items-center gap-1" : ""}`}
+      >
+        {collapsed ? (
+          <>
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              title="New resume"
+              className="rounded-md border border-transparent p-2 text-zinc-500 hover:border-sidebar-border hover:bg-sidebar-accent hover:text-zinc-200"
+            >
+              <SquarePen className="h-4 w-4" strokeWidth={2.2} />
+            </button>
+            <div
+              title={userName}
+              className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-600 text-[10px] text-zinc-100"
+            >
               {initials}
             </div>
-            <span className="truncate text-[13px] text-sidebar-foreground">
-              {userName}
-            </span>
+          </>
+        ) : (
+          <div className="flex items-center justify-between rounded-md px-1.5 py-1.5">
+            <div className="flex min-w-0 items-center gap-2">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-zinc-600 text-[10px] font-normal text-zinc-100">
+                {initials}
+              </div>
+              <span className="truncate text-[13px] font-light text-sidebar-foreground">
+                {userName}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={signOut}
+              title="Sign out"
+              className="rounded-md border border-transparent p-1.5 text-muted-foreground hover:border-sidebar-border hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            >
+              <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={signOut}
-            title="Sign out"
-            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-          >
-            <LogOut className="h-4 w-4" strokeWidth={1.75} />
-          </button>
-        </div>
+        )}
       </div>
     </aside>
   );

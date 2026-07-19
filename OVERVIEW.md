@@ -13,7 +13,7 @@ To provide a polished, opinionated interface for:
 - **Managing source data** — a profile hub where users store personal info, bios, work experience, education, skills, and custom sections (persisted in DB).
 - **Generating resumes via chat** — a conversational workspace where users describe the role or tone they want and receive a LaTeX draft (via AI providers).
 - **Iterating through chat + code** — a split-pane workspace with a chat panel on one side and a preview/code toggle on the other, letting users refine both content and LaTeX source.
-- **Previewing output** — a mocked PDF-like preview rendered from profile data until an external PDF service is wired in.
+- **Previewing output** — a live PDF preview compiled by an external Tectonic service through an authenticated server-side proxy.
 - **Managing formats** — a library of LaTeX templates that can be selected and edited, then used as the basis for resume generation (persisted in DB).
 
 ## Tech stack
@@ -52,7 +52,7 @@ src/
 │   │   ├── formats/
 │   │   │   ├── page.tsx      — Format/template library
 │   │   │   └── [id]/
-│   │   │       └── page.tsx  — Format editor (LaTeX + mock preview)
+│   │   │       └── page.tsx  — Format editor (LaTeX + live PDF preview)
 │   │   └── workspace/
 │   │       └── [id]/
 │   │           └── page.tsx  — Resume workspace (chat + preview/code)
@@ -115,13 +115,13 @@ src/
 | `/resumes` | Resumes | List of resume workspaces |
 | `/profile` | Profile | Source-data editor (DB-backed) |
 | `/formats` | Formats | LaTeX template library (DB-backed) |
-| `/formats/[id]` | Format editor | Edit LaTeX + mock preview (DB-backed) |
+| `/formats/[id]` | Format editor | Edit LaTeX + live PDF preview (DB-backed) |
 | `/workspace/[id]` | Workspace | Chat + LaTeX editor + preview |
 
 ## Design principles
 
 - **Client-first UI** — most interactive components use `"use client"`.
-- **Real AI, mocked rendering** — AI routes are implemented with auth gating, but PDF output is mocked in the UI and intended to be produced by an external service.
+- **Real AI and rendering** — AI and PDF compilation routes are auth-gated; Tectonic is called only from the server so its URL and optional API key are not exposed to the browser.
 - **Session-scoped everything** — all API routes and DB operations are scoped by the authenticated user ID.
 - **Lazy seeding** — on first access, new users get a default profile (from mock data) and one default ATS-friendly format (Jake Gutierrez template).
 - **Convention over configuration** — follows Next.js App Router conventions with file-based routing.
@@ -129,6 +129,6 @@ src/
 
 ## Project constraints
 
-- Do not add in-app LaTeX-to-PDF compilation; PDF generation is an external service.
+- Do not add in-app LaTeX-to-PDF compilation; PDF generation uses the external service configured by `TECTONIC_API_URL`. Set `TECTONIC_API_KEY` when the service expects bearer authentication. The service receives JSON `{ "latex": "..." }` and may return PDF bytes or JSON containing `pdf`, `pdfBase64`, or `url`.
 - Data is persisted via Drizzle/SQLite + Better Auth. Profile, workspaces, messages, and formats are stored in the DB.
 - Keep UI functionality mocked where it is not yet wired to a real backend or external service.

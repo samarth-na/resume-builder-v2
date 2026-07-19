@@ -104,7 +104,7 @@ export default function FormatDetailPage() {
         </div>
 
         <div className="flex flex-1 flex-col">
-          <FormatPdfPreview formatName={format.name} />
+          <FormatPdfPreview latex={format.latexCode} />
         </div>
       </div>
     </div>

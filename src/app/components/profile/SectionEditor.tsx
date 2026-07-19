@@ -64,10 +64,10 @@ export default function SectionEditor({
   };
 
   return (
-    <section className="rounded-lg border border-border bg-card p-5">
+    <section className="border-t border-border py-8">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-medium text-card-foreground">
+          <h3 className="text-sm font-medium text-foreground">
             {section.name}
           </h3>
           {editingTypes ? (
@@ -135,7 +135,7 @@ export default function SectionEditor({
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="divide-y divide-border">
         {section.entries.map((entry, index) => (
           <EntryEditor
             key={entry.id}
@@ -146,7 +146,7 @@ export default function SectionEditor({
           />
         ))}
         {section.entries.length === 0 && (
-          <p className="text-[13px] text-muted-foreground">
+          <p className="py-3 text-[13px] text-muted-foreground">
             No entries yet. Click &quot;Add entry&quot; to start.
           </p>
         )}

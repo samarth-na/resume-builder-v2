@@ -101,19 +101,11 @@ export default function DashboardV2() {
     };
   }, []);
 
-  const createWorkspace = async (targetRole?: string) => {
-    const role = targetRole?.trim();
-    const res = await fetch("/api/workspaces", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: role ? `Resume — ${role}` : "Untitled Resume",
-        targetRole: role || undefined,
-      }),
-    });
-    if (!res.ok) return;
-    const workspace: ResumeProject = await res.json();
-    router.push(`/workspace/${workspace.id}`);
+  const createWorkspace = (targetRole?: string) => {
+    const params = targetRole?.trim()
+      ? `?role=${encodeURIComponent(targetRole.trim())}`
+      : "";
+    router.push(`/new-resume${params}`);
   };
 
   const firstName = session?.user?.name?.split(" ")[0] ?? "there";

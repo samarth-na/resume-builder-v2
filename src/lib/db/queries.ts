@@ -207,7 +207,14 @@ export async function getWorkspace(
 
 export async function createWorkspace(
   userId: string,
-  data?: { name?: string; targetRole?: string },
+  data?: {
+    name?: string;
+    targetRole?: string;
+    metaPrompt?: string;
+    metaJobDescription?: string;
+    metaCompany?: string;
+    metaTone?: string;
+  },
 ): Promise<ResumeProject> {
   const [row] = await db
     .insert(workspace)
@@ -216,6 +223,10 @@ export async function createWorkspace(
       userId,
       name: data?.name ?? "Untitled Resume",
       targetRole: data?.targetRole ?? null,
+      metaPrompt: data?.metaPrompt ?? null,
+      metaJobDescription: data?.metaJobDescription ?? null,
+      metaCompany: data?.metaCompany ?? null,
+      metaTone: data?.metaTone ?? null,
     })
     .returning();
   return workspaceRowToResumeProject(row, []);
