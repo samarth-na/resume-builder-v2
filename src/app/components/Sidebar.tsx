@@ -3,15 +3,10 @@
 import {
   ChevronDown,
   FileCode2,
-  FolderOpen,
+  FileText,
   LayoutDashboard,
-  Library,
   LogOut,
-  Plug,
-  Search,
   UserCircle,
-  Users,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -21,17 +16,9 @@ import type { ResumeProject } from "@/lib/types";
 
 const topNav = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/resumes", icon: FileText, label: "Resumes" },
   { href: "/profile", icon: UserCircle, label: "Profile" },
   { href: "/formats", icon: FileCode2, label: "Formats" },
-  { href: "#", icon: Search, label: "Search", shortcut: "Ctrl K" },
-  { href: "#", icon: Library, label: "Resources" },
-  { href: "#", icon: Plug, label: "Connectors" },
-];
-
-const projectFilters = [
-  { href: "#", icon: FolderOpen, label: "All resumes" },
-  { href: "#", icon: UserCircle, label: "Created by me" },
-  { href: "#", icon: Users, label: "Shared with me" },
 ];
 
 function NavItem({
@@ -97,6 +84,13 @@ export default function Sidebar() {
   const userName = session?.user?.name ?? "Guest";
   const initials = userName.slice(0, 1).toUpperCase();
 
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (pathname.startsWith(href)) return true;
+    // Resume workspaces belong to the Resumes section.
+    return href === "/resumes" && pathname.startsWith("/workspace");
+  };
+
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950">
       <div className="flex h-14 items-center gap-2 border-b border-zinc-800 px-4">
@@ -124,23 +118,8 @@ export default function Sidebar() {
       <nav className="flex-1 space-y-6 overflow-y-auto px-3">
         <div className="space-y-0.5">
           {topNav.map((item) => (
-            <NavItem
-              key={item.label}
-              {...item}
-              active={pathname === item.href}
-            />
+            <NavItem key={item.label} {...item} active={isActive(item.href)} />
           ))}
-        </div>
-
-        <div>
-          <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-zinc-600">
-            Resumes
-          </h3>
-          <div className="space-y-0.5">
-            {projectFilters.map((item) => (
-              <NavItem key={item.label} {...item} />
-            ))}
-          </div>
         </div>
 
         <div>
@@ -166,19 +145,6 @@ export default function Sidebar() {
       </nav>
 
       <div className="space-y-2 border-t border-zinc-800 p-3">
-        <div className="flex items-center justify-between rounded-xl bg-zinc-900 p-3">
-          <div>
-            <p className="text-sm font-medium text-zinc-200">Upgrade to Pro</p>
-            <p className="text-xs text-zinc-500">Unlock more templates</p>
-          </div>
-          <button
-            type="button"
-            className="rounded-lg bg-indigo-600/20 p-2 text-indigo-400 hover:bg-indigo-600/30"
-          >
-            <Zap className="h-4 w-4" />
-          </button>
-        </div>
-
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">

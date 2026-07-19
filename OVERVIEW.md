@@ -36,25 +36,29 @@ To provide a polished, opinionated interface for:
 ```
 src/
 ├── app/
-│   ├── page.tsx              — Dashboard (workspace list + generation prompt)
 │   ├── layout.tsx            — Root layout (font loading, globals)
 │   ├── globals.css           — Tailwind v4 config + theme tokens
 │   ├── sign-in/
 │   │   └── page.tsx          — Email/password sign-in
 │   ├── sign-up/
 │   │   └── page.tsx          — Email/password sign-up
-│   ├── profile/
-│   │   └── page.tsx          — Source-data hub (basic info, bio, sections)
-│   ├── formats/
-│   │   ├── page.tsx          — Format/template library
-│   │   └── [id]/
-│   │       └── page.tsx      — Format editor (LaTeX + mock preview)
-│   ├── workspace/
-│   │   └── [id]/
-│   │       └── page.tsx      — Resume workspace (chat + preview/code)
+│   ├── (app)/                — Route group for authenticated pages
+│   │   ├── layout.tsx        — Shared shell (Sidebar + flex container)
+│   │   ├── page.tsx          — Dashboard (generation prompt hero)
+│   │   ├── resumes/
+│   │   │   └── page.tsx      — Resume list (all workspaces)
+│   │   ├── profile/
+│   │   │   └── page.tsx      — Source-data hub (basic info, bio, sections)
+│   │   ├── formats/
+│   │   │   ├── page.tsx      — Format/template library
+│   │   │   └── [id]/
+│   │   │       └── page.tsx  — Format editor (LaTeX + mock preview)
+│   │   └── workspace/
+│   │       └── [id]/
+│   │           └── page.tsx  — Resume workspace (chat + preview/code)
 │   └── components/
 │       ├── Sidebar.tsx       — Persistent nav sidebar (session-aware)
-│       ├── ResumeCard.tsx    — Resume project card (dashboard)
+│       ├── ResumeCard.tsx    — Resume project card
 │       ├── FormatCard.tsx    — Format card (formats list)
 │       ├── profile/
 │       │   ├── BasicInfoForm.tsx
@@ -107,7 +111,8 @@ src/
 |---|---|---|
 | `/sign-in` | Sign in | Email/password sign-in |
 | `/sign-up` | Sign up | Email/password sign-up |
-| `/` | Dashboard | Workspace listing + generation prompt |
+| `/` | Dashboard | Generation prompt hero |
+| `/resumes` | Resumes | List of resume workspaces |
 | `/profile` | Profile | Source-data editor (DB-backed) |
 | `/formats` | Formats | LaTeX template library (DB-backed) |
 | `/formats/[id]` | Format editor | Edit LaTeX + mock preview (DB-backed) |

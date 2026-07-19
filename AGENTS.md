@@ -31,9 +31,10 @@ There are no tests yet. Verify with `bun run lint && bun run build`.
 
 ## App structure
 
-App Router under `src/app/`:
+App Router under `src/app/`. Authenticated pages live in the `(app)` route group with a shared Sidebar layout:
 
-- `/` — Dashboard (workspace list + generation prompt)
+- `/` — Dashboard (generation prompt hero)
+- `/resumes` — Resume list (all workspaces)
 - `/sign-in` — Email/password sign-in
 - `/sign-up` — Email/password sign-up
 - `/profile` — Personal info / source-data hub (DB-backed)

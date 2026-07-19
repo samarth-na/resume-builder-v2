@@ -215,7 +215,7 @@ export class NvidiaProvider extends BaseAiProvider {
               JSON.stringify(chunk).substring(0, 200),
             );
           }
-        } catch (e) {
+        } catch {
           console.warn(
             "[NvidiaProvider.stream] Malformed chunk:",
             payload.substring(0, 100),

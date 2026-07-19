@@ -1,16 +1,16 @@
 #!/usr/bin/env bun
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db } from "./index";
-import * as schema from "./schema";
-import {
-  ensureProfile,
-  ensureDefaultFormat,
-  createWorkspace,
-  createMessage,
-} from "./queries";
 import { defaultLatexTemplate } from "@/lib/default-latex";
 import type { ProfileSection } from "@/lib/types";
+import { db } from "./index";
+import {
+  createMessage,
+  createWorkspace,
+  ensureDefaultFormat,
+  ensureProfile,
+} from "./queries";
+import * as schema from "./schema";
 
 const users = [
   {
