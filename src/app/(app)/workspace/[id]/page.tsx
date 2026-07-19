@@ -46,6 +46,7 @@ export default function WorkspacePage() {
         targetRole={project.targetRole}
         version={project.version}
         view={view}
+        latex={project.latexCode}
         onChangeView={setView}
       />
 

@@ -13,50 +13,78 @@ export default function PdfPreview({ latex }: { latex: string }) {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [compiling, setCompiling] = useState(false);
+  const [fixing, setFixing] = useState(false);
+  const [originalError, setOriginalError] = useState<string | null>(null);
 
   const requestRef = useRef<AbortController | null>(null);
 
-  const compile = useCallback(async () => {
-    requestRef.current?.abort();
-    if (!latex.trim()) {
-      setPdfUrl(null);
-      setError(null);
-      return;
-    }
-
-    const controller = new AbortController();
-    requestRef.current = controller;
-    setCompiling(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/pdf/compile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ latex }),
-        signal: controller.signal,
-      });
-      if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        throw new Error(
-          data?.error || `Compilation failed (${response.status}).`,
-        );
+  const compile = useCallback(
+    async (sourceLatex?: string) => {
+      requestRef.current?.abort();
+      const source = sourceLatex ?? latex;
+      if (!source.trim()) {
+        setPdfUrl(null);
+        setError(null);
+        return;
       }
-      const nextUrl = URL.createObjectURL(await response.blob());
-      setPdfUrl((current) => {
-        if (current) URL.revokeObjectURL(current);
-        return nextUrl;
-      });
-    } catch (cause) {
-      if (cause instanceof Error && cause.name === "AbortError") return;
-      setError(
-        cause instanceof Error ? cause.message : "PDF compilation failed.",
-      );
-    } finally {
-      if (requestRef.current === controller) setCompiling(false);
-    }
-  }, [latex]);
+
+      const controller = new AbortController();
+      requestRef.current = controller;
+      setCompiling(true);
+      setError(null);
+      setFixing(false);
+      setOriginalError(null);
+      try {
+        const response = await fetch("/api/pdf/compile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ latex: source }),
+          signal: controller.signal,
+        });
+
+        if (response.status === 207) {
+          const data = (await response.json()) as {
+            status?: string;
+            originalError?: string;
+            fixedLatex?: string;
+          };
+          if (data.status === "fixed" && data.fixedLatex) {
+            setFixing(true);
+            setOriginalError(data.originalError ?? null);
+            // Resend the AI-corrected LaTeX for a fresh compile.
+            await compile(data.fixedLatex);
+            return;
+          }
+          throw new Error(data.originalError || "Compilation failed.");
+        }
+
+        if (!response.ok) {
+          const data = (await response.json().catch(() => null)) as {
+            error?: string;
+          } | null;
+          throw new Error(
+            data?.error || `Compilation failed (${response.status}).`,
+          );
+        }
+        const nextUrl = URL.createObjectURL(await response.blob());
+        setPdfUrl((current) => {
+          if (current) URL.revokeObjectURL(current);
+          return nextUrl;
+        });
+      } catch (cause) {
+        if (cause instanceof Error && cause.name === "AbortError") return;
+        setError(
+          cause instanceof Error ? cause.message : "PDF compilation failed.",
+        );
+      } finally {
+        if (requestRef.current === controller) {
+          setCompiling(false);
+          setFixing(false);
+        }
+      }
+    },
+    [latex],
+  );
 
   useEffect(() => {
     const timer = window.setTimeout(() => void compile(), 700);
@@ -93,11 +121,13 @@ export default function PdfPreview({ latex }: { latex: string }) {
           ) : (
             <FileText className="h-3 w-3 text-zinc-400" />
           )}
-          {compiling
-            ? "Compiling with Tectonic…"
-            : error
-              ? "Compilation failed"
-              : "Live PDF preview"}
+          {fixing
+            ? "Optimizing your resume…"
+            : compiling
+              ? "Compiling with Tectonic…"
+              : error
+                ? "Compilation failed"
+                : "Live PDF preview"}
         </div>
         <div className="flex items-center gap-1">
           <button
@@ -129,27 +159,39 @@ export default function PdfPreview({ latex }: { latex: string }) {
             className="h-full w-full max-w-[900px] rounded border border-zinc-600 bg-white shadow-xl"
           />
         )}
-        {compiling && !pdfUrl && (
+        {fixing && !pdfUrl && (
+          <div className="flex h-full items-center justify-center text-sm text-slate-300">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Optimizing your resume for the best layout, then recompiling…
+          </div>
+        )}
+        {compiling && !fixing && !pdfUrl && (
           <div className="flex h-full items-center justify-center text-sm text-slate-300">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Building your preview…
           </div>
         )}
         {error && (
-          <div className="absolute inset-x-5 top-5 z-10 mx-auto max-w-2xl rounded-xl border border-rose-300/25 bg-rose-950/90 p-4 text-rose-50 shadow-xl backdrop-blur">
+          <div className="absolute inset-x-3 top-3 z-10 mx-auto max-w-2xl rounded-md border border-zinc-600 bg-zinc-900/95 p-3 text-zinc-200 shadow-xl">
             <div className="flex gap-3">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-rose-300" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold">
                   Tectonic could not compile this LaTeX
                 </p>
-                <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded-md bg-slate-950/55 p-3 text-xs leading-relaxed text-rose-100">
+                {originalError && (
+                  <p className="mt-1 text-[11px] text-zinc-400">
+                    We tried to optimize the resume but it still failed to
+                    compile. Original error:
+                  </p>
+                )}
+                <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded border border-zinc-700 bg-zinc-950 p-2.5 text-[11px] leading-relaxed text-zinc-300">
                   {error}
                 </pre>
                 <button
                   type="button"
                   onClick={() => void compile()}
-                  className="mt-3 flex items-center gap-1.5 rounded-md bg-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-950 hover:bg-white"
+                  className="mt-2 flex items-center gap-1.5 rounded border border-zinc-600 bg-zinc-700 px-2.5 py-1.5 text-[11px] font-normal text-zinc-100 hover:bg-zinc-600"
                 >
                   <RefreshCw className="h-3.5 w-3.5" /> Try again
                 </button>

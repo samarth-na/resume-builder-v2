@@ -1,5 +1,5 @@
 import { createResumeAiClient } from "@/lib/ai/client";
-import { errorResponse, jsonResponse } from "@/lib/ai/http";
+import { errorResponse } from "@/lib/ai/http";
 import type { AiMessage } from "@/lib/ai/types";
 import { getSessionUser } from "@/lib/auth-server";
 import {
@@ -90,27 +90,50 @@ export async function POST(request: Request) {
 
     const client = createResumeAiClient();
 
-    // Collect full response (streaming causes controller race conditions in Next.js)
-    let thinking = "";
-    let content = "";
-
-    console.log("[/api/chat] Starting AI call...");
-    for await (const event of client.streamChat({
-      messages,
-      systemPrompt,
-      formatLatex,
-      profile,
-    })) {
-      if (event.type === "thinking") thinking += event.text;
-      if (event.type === "content") content += event.text;
-    }
-    console.log("[/api/chat] AI call complete:", {
-      thinkingLength: thinking.length,
-      contentLength: content.length,
-      contentPreview: content.substring(0, 100),
+    console.log("[/api/chat] Starting streamed AI call...");
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        let thinking = "";
+        let content = "";
+        const send = (obj: unknown) =>
+          controller.enqueue(encoder.encode(`${JSON.stringify(obj)}\n`));
+        try {
+          for await (const event of client.streamChat({
+            messages,
+            systemPrompt,
+            formatLatex,
+            profile,
+          })) {
+            if (event.type === "thinking") {
+              thinking += event.text;
+              send({ type: "thinking", text: event.text });
+            } else if (event.type === "content") {
+              content += event.text;
+              send({ type: "content", text: event.text });
+            }
+          }
+          send({ type: "done", thinking, content });
+        } catch (error) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : "An unexpected error occurred.";
+          console.error("[/api/chat] Stream error:", message);
+          send({ type: "error", error: message });
+        } finally {
+          controller.close();
+        }
+      },
     });
 
-    return jsonResponse({ content, thinking });
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "application/x-ndjson",
+        "Cache-Control": "no-store",
+        "Transfer-Encoding": "chunked",
+      },
+    });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "An unexpected error occurred.";

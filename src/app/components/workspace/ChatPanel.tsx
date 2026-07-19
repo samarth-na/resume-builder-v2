@@ -47,13 +47,15 @@ function AssistantMessage({ content }: { content: string }) {
   return (
     <div className="max-w-[94%] text-[13px] leading-relaxed text-card-foreground">
       {parts.thinking && (
-        <details className="mb-3 overflow-hidden rounded-lg border border-indigo-300/15 bg-indigo-300/5">
-          <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-xs font-medium text-indigo-200 hover:bg-indigo-300/10">
-            <BrainCircuit className="h-3.5 w-3.5" />
+        <details className="mb-3 overflow-hidden rounded border border-border bg-card">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-2.5 py-2 text-[11px] font-normal text-zinc-300 hover:bg-accent">
+            <span className="flex h-5 w-5 items-center justify-center rounded bg-zinc-700">
+              <BrainCircuit className="h-3 w-3" />
+            </span>
             How I approached this
             <ChevronDown className="ml-auto h-3.5 w-3.5" />
           </summary>
-          <div className="whitespace-pre-wrap border-t border-indigo-300/10 px-3 py-2.5 text-xs leading-relaxed text-muted-foreground">
+          <div className="whitespace-pre-wrap border-t border-border px-2.5 py-2 text-[11px] leading-relaxed text-muted-foreground">
             {parts.thinking}
           </div>
         </details>

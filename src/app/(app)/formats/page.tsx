@@ -41,7 +41,7 @@ export default function FormatsPage() {
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden bg-background">
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-6">
+      <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
         <div className="flex items-baseline gap-3">
           <h1 className="text-sm font-medium text-foreground">Formats</h1>
           <p className="text-xs text-muted-foreground">
@@ -51,14 +51,14 @@ export default function FormatsPage() {
         <button
           type="button"
           onClick={() => setIsAdding(true)}
-          className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="flex h-7 items-center gap-1.5 rounded border border-zinc-300 bg-zinc-200 px-2.5 text-[11px] font-normal text-zinc-900 shadow-sm hover:bg-white"
         >
           <Plus className="h-3.5 w-3.5" strokeWidth={2} />
           New format
         </button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-6 py-8">
+      <div className="flex-1 overflow-y-auto px-4 py-5">
         <div className="mx-auto max-w-5xl">
           {isAdding && (
             <div className="mb-6 rounded-lg border border-border bg-card p-5">
@@ -100,7 +100,7 @@ export default function FormatsPage() {
             </div>
           )}
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
             {formats === null ? (
               <p className="col-span-full py-8 text-center text-[13px] text-muted-foreground">
                 Loading formats...

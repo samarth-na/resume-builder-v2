@@ -19,7 +19,20 @@ async function readError(response: Response) {
   if (!body) return `Tectonic returned ${response.status}.`;
   try {
     const data = JSON.parse(body) as Record<string, unknown>;
-    const detail = data.error ?? data.message ?? data.log ?? data.stderr;
+    const error = typeof data.error === "string" ? data.error : undefined;
+    const log = typeof data.log === "string" ? data.log : undefined;
+    if (log) {
+      const idx = log.indexOf("! ");
+      const snippet =
+        idx === -1
+          ? log.trim().split("\n").slice(-30).join("\n")
+          : log.slice(idx, idx + 1200);
+      return `${error ?? "LaTeX compilation failed."}\n\n${snippet}`;
+    }
+    const detail =
+      error ??
+      (typeof data.message === "string" ? data.message : undefined) ??
+      (typeof data.stderr === "string" ? data.stderr : undefined);
     if (typeof detail === "string") return detail;
   } catch {
     // The compiler may return its log as plain text.
@@ -27,9 +40,21 @@ async function readError(response: Response) {
   return body;
 }
 
+function endpointCandidates(configuredEndpoint: string) {
+  const endpoint = new URL(configuredEndpoint);
+  if (endpoint.hostname === "localhost") endpoint.hostname = "127.0.0.1";
+
+  const candidates = [endpoint.toString()];
+  if (endpoint.pathname === "/" || endpoint.pathname === "") {
+    endpoint.pathname = "/compile";
+    candidates.push(endpoint.toString());
+  }
+  return candidates;
+}
+
 export async function compileLatex(latex: string): Promise<Uint8Array> {
-  const endpoint = process.env.TECTONIC_API_URL;
-  if (!endpoint) {
+  const configuredEndpoint = process.env.TECTONIC_API_URL;
+  if (!configuredEndpoint) {
     throw new LatexCompilationError(
       "PDF rendering is not configured. Set TECTONIC_API_URL on the Next.js server.",
       503,
@@ -39,20 +64,33 @@ export async function compileLatex(latex: string): Promise<Uint8Array> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
   try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/pdf, application/json",
-        ...(process.env.TECTONIC_API_KEY
-          ? { Authorization: `Bearer ${process.env.TECTONIC_API_KEY}` }
-          : {}),
-      },
-      body: JSON.stringify({ latex }),
-      cache: "no-store",
-      signal: controller.signal,
-    });
+    let response: Response | undefined;
+    let connectionError: unknown;
+    const candidates = endpointCandidates(configuredEndpoint);
 
+    for (const endpoint of candidates) {
+      try {
+        response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/pdf, application/json",
+            ...(process.env.TECTONIC_API_KEY
+              ? { Authorization: `Bearer ${process.env.TECTONIC_API_KEY}` }
+              : {}),
+          },
+          body: JSON.stringify({ latex }),
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (response.status !== 404 && response.status !== 405) break;
+      } catch (error) {
+        connectionError = error;
+      }
+    }
+
+    if (!response)
+      throw connectionError ?? new Error("No compiler endpoint responded.");
     if (!response.ok) {
       throw new LatexCompilationError(await readError(response), 422);
     }

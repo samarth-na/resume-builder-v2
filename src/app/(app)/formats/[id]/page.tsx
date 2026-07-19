@@ -56,7 +56,7 @@ export default function FormatDetailPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden bg-background">
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
+      <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-3">
         <div className="flex min-w-0 items-center gap-2">
           <Link
             href="/formats"

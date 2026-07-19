@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
+const fieldClass =
+  "h-8 w-full rounded border border-input bg-background px-2.5 text-xs font-light text-foreground outline-none focus:border-zinc-500";
+
 export default function SignUpPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -32,92 +35,80 @@ export default function SignUpPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center bg-background px-6">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,oklch(0.623_0.214_259.815_/_14%),transparent_70%)]" />
-      <div className="relative z-10 w-full max-w-sm space-y-6 rounded-xl border border-border bg-card p-8 shadow-xl">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="w-full max-w-xs space-y-4 rounded-lg border border-border bg-card p-5 shadow-lg">
         <div className="space-y-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground text-sm font-semibold text-background">
+          <div className="flex h-7 w-7 items-center justify-center rounded border border-zinc-500 bg-zinc-700 text-[11px] text-zinc-100">
             R
           </div>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          <h1 className="pt-1 text-base font-normal tracking-tight text-foreground">
             Create account
           </h1>
-          <p className="text-[13px] text-muted-foreground">
-            Start building resumes with ResumeCraft.
+          <p className="text-xs text-muted-foreground">
+            Start building with ResumeCraft.
           </p>
         </div>
-
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="name"
-              className="mb-1 block text-xs font-medium text-muted-foreground"
-            >
-              Name
-            </label>
+        <form onSubmit={onSubmit} className="space-y-3">
+          <label
+            className="block text-[11px] text-muted-foreground"
+            htmlFor="name"
+          >
+            Name
             <input
               id="name"
-              type="text"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-ring"
+              onChange={(event) => setName(event.target.value)}
+              className={`mt-1 ${fieldClass}`}
             />
-          </div>
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-1 block text-xs font-medium text-muted-foreground"
-            >
-              Email
-            </label>
+          </label>
+          <label
+            className="block text-[11px] text-muted-foreground"
+            htmlFor="email"
+          >
+            Email
             <input
               id="email"
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-ring"
+              onChange={(event) => setEmail(event.target.value)}
+              className={`mt-1 ${fieldClass}`}
             />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-1 block text-xs font-medium text-muted-foreground"
-            >
-              Password
-            </label>
+          </label>
+          <label
+            className="block text-[11px] text-muted-foreground"
+            htmlFor="password"
+          >
+            Password
             <input
               id="password"
               type="password"
-              required
               minLength={8}
+              required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-ring"
+              onChange={(event) => setPassword(event.target.value)}
+              className={`mt-1 ${fieldClass}`}
             />
-          </div>
-
+          </label>
           {error && (
-            <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+            <p className="rounded border border-destructive/40 bg-background px-2.5 py-2 text-[11px] text-destructive">
               {error}
             </p>
           )}
-
           <button
             type="submit"
             disabled={loading}
-            className="h-9 w-full rounded-md bg-primary text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+            className="h-8 w-full rounded border border-zinc-300 bg-zinc-200 text-xs font-normal text-zinc-900 shadow-sm hover:bg-white disabled:opacity-60"
           >
-            {loading ? "Creating..." : "Create account"}
+            {loading ? "Creating…" : "Create account"}
           </button>
         </form>
-
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-center text-[11px] text-muted-foreground">
           Already have an account?{" "}
           <Link
             href="/sign-in"
-            className="font-medium text-brand transition-colors hover:text-brand/80"
+            className="text-zinc-200 underline-offset-2 hover:underline"
           >
             Sign in
           </Link>

@@ -8,33 +8,27 @@ export default function ResumeCard({ project }: { project: ResumeProject }) {
   return (
     <Link
       href={`/workspace/${project.id}`}
-      className="group flex flex-col gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-input"
+      className="group flex items-center gap-3 rounded-md border border-border bg-card p-3 hover:border-input hover:bg-accent/30"
     >
-      <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-border bg-background">
-        <div className="absolute inset-0 flex flex-col gap-2 p-4 opacity-80">
-          <div className="h-2 w-1/3 rounded-full bg-muted" />
-          <div className="h-2 w-2/3 rounded-full bg-muted" />
-          <div className="mt-2 h-1.5 w-full rounded-full bg-muted/70" />
-          <div className="h-1.5 w-5/6 rounded-full bg-muted/70" />
-          <div className="h-1.5 w-4/6 rounded-full bg-muted/70" />
-          <div className="mt-3 h-1.5 w-full rounded-full bg-muted/70" />
-          <div className="h-1.5 w-3/4 rounded-full bg-muted/70" />
+      <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded border border-border bg-background">
+        <div className="absolute inset-0 flex flex-col gap-1 p-2 opacity-80">
+          <div className="h-1.5 w-1/3 rounded bg-muted" />
+          <div className="h-1.5 w-2/3 rounded bg-muted" />
+          <div className="mt-1 h-1 w-full rounded bg-muted/70" />
+          <div className="h-1 w-5/6 rounded bg-muted/70" />
+          <div className="h-1 w-4/6 rounded bg-muted/70" />
         </div>
-        <div className="absolute bottom-3 right-3 rounded-md border border-border bg-card/90 p-1.5 text-muted-foreground backdrop-blur">
-          <FileText className="h-3.5 w-3.5" strokeWidth={1.75} />
+        <div className="absolute bottom-1 right-1 rounded border border-border bg-card p-1 text-muted-foreground">
+          <FileText className="h-3 w-3" strokeWidth={2.2} />
         </div>
       </div>
-
-      <div className="flex items-start gap-2.5">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
-          <FileText className="h-3.5 w-3.5" strokeWidth={1.75} />
-        </div>
-        <div className="min-w-0">
-          <h3 className="truncate text-[13px] font-medium text-card-foreground">
-            {project.name}
-          </h3>
-          <p className="text-xs text-muted-foreground">{project.updatedAt}</p>
-        </div>
+      <div className="min-w-0">
+        <h3 className="truncate text-xs font-normal text-card-foreground">
+          {project.name}
+        </h3>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">
+          {project.updatedAt}
+        </p>
       </div>
     </Link>
   );

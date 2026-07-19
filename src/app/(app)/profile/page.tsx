@@ -92,7 +92,7 @@ export default function ProfilePage() {
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden bg-background">
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-6">
+      <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
         <div className="flex items-baseline gap-3">
           <h1 className="text-sm font-medium text-foreground">Profile</h1>
           <p className="text-xs text-muted-foreground">
@@ -114,9 +114,9 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-6 py-8">
+      <div className="flex-1 overflow-y-auto px-4 py-5">
         <div className="mx-auto max-w-3xl">
-          <section className="pb-8">
+          <section className="pb-5">
             <h2 className="mb-4 text-sm font-medium text-foreground">
               Basic information
             </h2>
@@ -130,7 +130,7 @@ export default function ProfilePage() {
             />
           </section>
 
-          <section className="border-t border-border py-8">
+          <section className="border-t border-border py-5">
             <h2 className="mb-1 text-sm font-medium text-foreground">
               Professional summary
             </h2>
@@ -158,7 +158,7 @@ export default function ProfilePage() {
             />
           ))}
 
-          <div className="border-t border-border py-8">
+          <div className="border-t border-border py-5">
             {!showAddSection ? (
               <button
                 type="button"

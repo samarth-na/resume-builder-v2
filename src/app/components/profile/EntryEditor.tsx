@@ -7,7 +7,9 @@ const inputClass =
   "w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/60 outline-none transition-colors focus:border-ring";
 
 function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={inputClass} />;
+  return (
+    <input {...props} className={`${inputClass} ${props.className ?? ""}`} />
+  );
 }
 
 function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
@@ -68,7 +70,7 @@ export default function EntryEditor({
     types.includes("bullets") || types.includes("paragraph");
 
   return (
-    <div className="py-5 first:pt-1 last:pb-0">
+    <div className="py-3 first:pt-1 last:pb-0">
       <div className="mb-3 flex items-center justify-between">
         <h4 className="truncate text-xs font-medium text-muted-foreground">
           {entry.title || entry.subtitle || "New entry"}
@@ -76,7 +78,9 @@ export default function EntryEditor({
         <button
           type="button"
           onClick={onDelete}
-          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          title="Delete entry"
+          aria-label="Delete entry"
+          className="rounded border border-border bg-secondary p-1 text-muted-foreground hover:text-destructive"
         >
           <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>

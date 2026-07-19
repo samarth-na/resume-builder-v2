@@ -64,7 +64,7 @@ export default function SectionEditor({
   };
 
   return (
-    <section className="border-t border-border py-8">
+    <section className="border-t border-border py-5">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h3 className="text-sm font-medium text-foreground">
@@ -118,7 +118,7 @@ export default function SectionEditor({
           <button
             type="button"
             onClick={addEntry}
-            className="flex h-7 items-center gap-1.5 rounded-md bg-secondary px-2.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-accent"
+            className="flex h-7 items-center gap-1.5 rounded border border-border bg-secondary px-2 text-[11px] text-secondary-foreground hover:bg-accent"
           >
             <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
             Add entry
@@ -127,7 +127,9 @@ export default function SectionEditor({
             <button
               type="button"
               onClick={onDelete}
-              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+              title="Delete section"
+              aria-label="Delete section"
+              className="rounded border border-border bg-secondary p-1.5 text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" strokeWidth={1.75} />
             </button>

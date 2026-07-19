@@ -21,7 +21,6 @@ export const defaultLatexTemplate = String.raw`%-------------------------
 \usepackage{fancyhdr}
 \usepackage[english]{babel}
 \usepackage{tabularx}
-\input{glyphtounicode}
 
 
 %----------FONT OPTIONS----------
@@ -58,10 +57,7 @@ export const defaultLatexTemplate = String.raw`%-------------------------
 % Sections formatting
 \titleformat{\section}{
   \vspace{-4pt}\scshape\raggedright\large
-}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
-
-% Ensure that generate pdf is machine readable/ATS parsable
-\pdfgentounicode=1
+  }{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
 
 %-------------------------
 % Custom commands

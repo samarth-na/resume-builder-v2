@@ -55,12 +55,14 @@ function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="rounded-md border border-border bg-card p-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">{label}</span>
-        <Icon className="h-4 w-4 text-muted-foreground/70" strokeWidth={1.75} />
+        <span className="text-[11px] text-muted-foreground">{label}</span>
+        <span className="flex h-6 w-6 items-center justify-center rounded border border-border bg-secondary text-zinc-400">
+          <Icon className="h-3 w-3" strokeWidth={2.2} />
+        </span>
       </div>
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-card-foreground">
+      <p className="mt-1 text-lg font-light tracking-tight text-card-foreground">
         {value}
       </p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
@@ -120,7 +122,7 @@ export default function DashboardV2() {
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden bg-background">
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-6">
+      <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
         <div className="flex items-baseline gap-3">
           <h1 className="text-sm font-medium text-foreground">Dashboard</h1>
           <p className="text-xs text-muted-foreground">{today}</p>
@@ -128,17 +130,17 @@ export default function DashboardV2() {
         <button
           type="button"
           onClick={() => createWorkspace()}
-          className="flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="flex h-7 items-center gap-1.5 rounded border border-zinc-300 bg-zinc-200 px-2.5 text-[11px] font-normal text-zinc-900 shadow-sm hover:bg-white"
         >
           <Plus className="h-3.5 w-3.5" strokeWidth={2} />
           New resume
         </button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-6 py-8">
-        <div className="mx-auto max-w-5xl space-y-8">
+      <div className="flex-1 overflow-y-auto px-4 py-5">
+        <div className="mx-auto max-w-5xl space-y-5">
           <div>
-            <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            <h2 className="text-base font-normal tracking-tight text-foreground">
               {greeting()}, {firstName}
             </h2>
             <p className="mt-1 text-[13px] text-muted-foreground">
@@ -302,7 +304,7 @@ export default function DashboardV2() {
                   </Link>
                 </div>
                 <div className="mb-3 flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-[13px] font-semibold text-brand-foreground">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded border border-zinc-500 bg-zinc-700 text-[11px] text-zinc-100">
                     {firstName.slice(0, 1).toUpperCase()}
                   </div>
                   <div className="min-w-0">
@@ -316,7 +318,7 @@ export default function DashboardV2() {
                 </div>
                 <div className="h-1 overflow-hidden rounded-full bg-secondary">
                   <div
-                    className="h-full rounded-full bg-brand transition-all"
+                    className="h-full rounded-full bg-zinc-500 transition-all"
                     style={{ width: `${completion}%` }}
                   />
                 </div>

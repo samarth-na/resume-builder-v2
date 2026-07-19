@@ -30,7 +30,7 @@ export default function ResumesPage() {
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden bg-background">
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-6">
+      <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
         <div className="flex items-baseline gap-3">
           <h1 className="text-sm font-medium text-foreground">Resumes</h1>
           <p className="text-xs text-muted-foreground">
@@ -47,9 +47,9 @@ export default function ResumesPage() {
         </button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-6 py-8">
+      <div className="flex-1 overflow-y-auto px-4 py-5">
         <div className="mx-auto max-w-5xl">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
             {projects === null ? (
               <p className="col-span-full py-8 text-center text-[13px] text-muted-foreground">
                 Loading resumes...
