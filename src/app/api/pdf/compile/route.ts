@@ -42,6 +42,7 @@ async function tryFixLatex(
       ),
     ]);
     const fixed = result.content
+      .replace(/<latex>([\s\S]*?)<\/latex>/, "$1")
       .replace(/```latex\s*/gi, "")
       .replace(/\s*```/g, "")
       .trim();

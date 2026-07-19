@@ -20,15 +20,19 @@ type Props = {
 };
 
 function extractLatex(text: string) {
-  return text.match(/\\documentclass[\s\S]*\\end\{document\}/)?.[0] ?? null;
+  const tagMatch = text.match(/<latex>([\s\S]*?)<\/latex>/);
+  if (tagMatch) return tagMatch[1].trim();
+  return text.trim() || null;
 }
 
 function splitThinking(content: string) {
-  const match = content.match(/<resume-thinking>([\s\S]*?)<\/resume-thinking>/);
+  const match = content.match(
+    /<(?:thinking|resume-thinking)>([\s\S]*?)<\/(?:thinking|resume-thinking)>/,
+  );
   return {
     thinking: match?.[1].trim() ?? "",
     content: content.replace(
-      /<resume-thinking>[\s\S]*?<\/resume-thinking>\s*/,
+      /<(?:thinking|resume-thinking)>[\s\S]*?<\/(?:thinking|resume-thinking)>\s*/,
       "",
     ),
   };
@@ -38,9 +42,9 @@ function AssistantMessage({ content }: { content: string }) {
   const parts = splitThinking(content);
   const latex = extractLatex(parts.content);
   const explanation = parts.content
+    .replace(/<latex>[\s\S]*?<\/latex>/, "")
     .replace(/```(?:latex|tex)?\s*/gi, "")
     .replace(/```/g, "")
-    .replace(/\\documentclass[\s\S]*\\end\{document\}/, "")
     .trim();
   const [copied, setCopied] = useState(false);
 
@@ -154,23 +158,89 @@ export default function ChatPanel({ project, onUpdate }: Props) {
     });
 
     let assistantContent = "";
+    const assistantId = crypto.randomUUID();
+    const renderLive = (content: string) => {
+      onUpdate({
+        ...project,
+        chat: [
+          ...project.chat,
+          userMessage,
+          {
+            id: assistantId,
+            role: "assistant",
+            content,
+            timestamp: "Just now",
+          },
+        ],
+        meta,
+      });
+    };
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages }),
       });
-      const data = await response.json();
-      assistantContent = response.ok
-        ? `${data.thinking ? `<resume-thinking>\n${data.thinking}\n</resume-thinking>\n` : ""}${data.content || "No response received."}`
-        : `Something went wrong: ${data.error || `Request failed (${response.status})`}`;
+      if (!response.ok || !response.body) {
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(data?.error || `Request failed (${response.status})`);
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let thinking = "";
+      let content = "";
+      renderLive("");
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          let event: {
+            type?: string;
+            text?: string;
+            error?: string;
+            thinking?: string;
+            content?: string;
+          };
+          try {
+            event = JSON.parse(trimmed);
+          } catch {
+            continue;
+          }
+          if (event.type === "thinking") {
+            thinking += event.text ?? "";
+            renderLive(
+              `${thinking ? `<thinking>\n${thinking}\n</thinking>\n` : ""}${content}`,
+            );
+          } else if (event.type === "content") {
+            content += event.text ?? "";
+            renderLive(
+              `${thinking ? `<thinking>\n${thinking}\n</thinking>\n` : ""}${content}`,
+            );
+          } else if (event.type === "error") {
+            throw new Error(event.error || "Stream error");
+          } else if (event.type === "done") {
+            thinking = event.thinking ?? thinking;
+            content = event.content ?? content;
+          }
+        }
+      }
+      assistantContent = `${thinking ? `<thinking>\n${thinking}\n</thinking>\n` : ""}${content}`;
+      if (!assistantContent.trim()) assistantContent = "No response received.";
     } catch (error) {
       assistantContent = `Something went wrong: ${error instanceof Error ? error.message : "Network error"}`;
     }
 
     const latex = extractLatex(assistantContent);
     const assistantMessage: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: assistantId,
       role: "assistant",
       content: assistantContent,
       timestamp: "Just now",
